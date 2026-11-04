@@ -28,6 +28,8 @@ use local_recertify\task\process;
  * @covers     \local_recertify\local\settings
  * @covers     \local_recertify\local\schedule
  * @covers     \local_recertify\task\process
+ * @covers     \local_recertify\local\notifier
+ * @covers     \local_recertify\event\certification_expired
  */
 final class schedule_test extends \advanced_testcase {
     /** @var int A fixed "now". */
@@ -159,6 +161,12 @@ final class schedule_test extends \advanced_testcase {
         );
         $logged = array_filter($events->get_events(), fn($e) => $e instanceof \local_recertify\event\certification_expired);
         $this->assertCount(1, $logged);
+        $event = reset($logged);
+        $this->assertStringContainsString("user with id '{$expired->id}'", $event->get_description());
+        $this->assertStringContainsString('/local/recertify/status.php', $event->get_url()->out(false));
+        $this->assertNotEmpty($event::get_name());
+        $this->assertSame('local_recertify_history', $event::get_objectid_mapping()['db']);
+        $this->assertNotEmpty((new process())->get_name());
         $this->assertNotEmpty($disabled);
 
         // Running again the same day does nothing more.
