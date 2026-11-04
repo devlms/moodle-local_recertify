@@ -1,0 +1,56 @@
+{{!
+    This file is part of Moodle - https://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_recertify/status
+
+    Recertification status of each learner in a course.
+
+    Example context (json):
+    {
+        "summary": "12 valid, 3 expiring, 1 expired, 4 not completed. Certifications last 365 days.",
+        "nextweek": "2 learners will be reset in the next 7 days.",
+        "hasrows": true,
+        "rows": [{"name": "Omar Haddad", "state": "expiring", "statekey": "expiring", "completed": "3 December 2025",
+                  "expires": "3 December 2026", "past": 1}]
+    }
+}}
+<p data-region="summary">{{summary}}</p>
+<p class="text-muted" data-region="nextweek">{{nextweek}}</p>
+{{#hasrows}}
+<table class="table table-striped generaltable local-recertify-status">
+    <thead>
+        <tr>
+            <th scope="col">{{#str}}learner, local_recertify{{/str}}</th>
+            <th scope="col">{{#str}}status, local_recertify{{/str}}</th>
+            <th scope="col">{{#str}}completed, local_recertify{{/str}}</th>
+            <th scope="col">{{#str}}expires, local_recertify{{/str}}</th>
+            <th scope="col">{{#str}}past, local_recertify{{/str}}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#rows}}
+        <tr data-state="{{statekey}}">
+            <td>{{name}}</td>
+            <td>{{state}}</td>
+            <td>{{completed}}</td>
+            <td>{{expires}}</td>
+            <td>{{past}}</td>
+        </tr>
+        {{/rows}}
+    </tbody>
+</table>
+{{/hasrows}}
