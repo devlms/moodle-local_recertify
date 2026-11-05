@@ -20,13 +20,17 @@ Feature: See who needs to recertify and switch it on
       | learner2 | FS     | student        |
     And "learner1" completed the course "FS" 350 days ago
 
+  @javascript @accessibility
   Scenario: Preview while off, then switch it on
     Given I am on the "FS" "local_recertify > Status" page logged in as "teacher1"
     Then I should see "Recertification is off in this course"
-    And I should see "expiring soon" in the "Lea Learner" "table_row"
-    And I should see "not completed" in the "Liam Late" "table_row"
-    And I should see "If you turn it on, 0 learner(s) would be reset in the next 7 days."
-    When I set the following fields to these values:
+    And I should see "Expiring soon" in the "Lea Learner" "table_row"
+    And I should see "Not completed" in the "Liam Late" "table_row"
+    And I should see "If you turn it on, nobody would be reset in the next 7 days."
+    And the page should meet accessibility standards
+    When I click on "Settings" "link" in the ".local-recertify-tabs" "css_element"
+    And the page should meet accessibility standards
+    And I set the following fields to these values:
       | Recertification on      | 1    |
       | Valid for (days)        | 355  |
       | Reminders (days before) | 30,7 |
@@ -34,4 +38,7 @@ Feature: See who needs to recertify and switch it on
     Then I should see "Changes saved"
     And I should not see "Recertification is off in this course"
     And I should see "Certifications last 355 days"
-    And I should see "1 learner(s) will be reset in the next 7 days."
+    And I should see "One learner will be reset in the next 7 days."
+    When I click on "Not completed" "link"
+    Then I should see "Liam Late"
+    And I should not see "Lea Learner"

@@ -25,7 +25,7 @@
 require_once(__DIR__ . '/../../config.php');
 
 use local_recertify\form\settings_form;
-use local_recertify\local\{schedule, settings};
+use local_recertify\local\settings;
 
 $courseid = required_param('courseid', PARAM_INT);
 $course = get_course($courseid);
@@ -42,9 +42,10 @@ $PAGE->set_title(get_string('pluginname', 'local_recertify'));
 $PAGE->set_heading(format_string($course->fullname, true, ['context' => $context]));
 
 $cfg = settings::get($courseid);
+$tab = $canmanage ? optional_param('tab', 'status', PARAM_ALPHA) : 'status';
 $form = null;
 if ($canmanage) {
-    $form = new settings_form($url);
+    $form = new settings_form(new moodle_url($url, ['tab' => 'settings']), null, 'post', '', ['class' => 'full-width-labels']);
     $form->set_data(['courseid' => $courseid, 'enabled' => $cfg->enabled, 'perioddays' => $cfg->perioddays,
         'reminderdays' => $cfg->reminderdays]);
     if ($data = $form->get_data()) {
@@ -53,39 +54,30 @@ if ($canmanage) {
     }
 }
 
-$now = time();
-$rows = [];
-$counts = ['valid' => 0, 'expiring' => 0, 'expired' => 0, 'none' => 0];
-$nextweek = 0;
 $learners = get_enrolled_users($context, 'moodle/course:isincompletionreports', 0, 'u.*', 'u.lastname, u.firstname', 0, 0, true);
-foreach ($learners as $user) {
-    $status = schedule::status($cfg, (int) $user->id, $now);
-    $counts[$status->state]++;
-    if ($status->expires && $status->expires <= $now + 7 * schedule::DAY) {
-        $nextweek++;
-    }
-    $rows[] = [
-        'name' => fullname($user),
-        'state' => get_string('state:' . $status->state, 'local_recertify'),
-        'statekey' => $status->state,
-        'completed' => $status->timecompleted ? userdate($status->timecompleted, get_string('strftimedate', 'langconfig')) : '',
-        'expires' => $status->expires ? userdate($status->expires, get_string('strftimedate', 'langconfig')) : '',
-        'past' => $status->certifications,
-    ];
-}
+$page = new \local_recertify\output\status_page(
+    $course,
+    $cfg,
+    array_values($learners),
+    time(),
+    optional_param('state', '', PARAM_ALPHA),
+    $canmanage
+);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('pluginname', 'local_recertify'));
-if (!$cfg->enabled) {
-    echo $OUTPUT->notification(get_string('notenabled', 'local_recertify', $nextweek), 'info', false);
+if ($canmanage) {
+    $tabs = [];
+    foreach (['status' => 'learners', 'settings' => 'settings'] as $name => $label) {
+        $tabs[] = new tabobject($name, new moodle_url($url, ['tab' => $name]), get_string($label, 'local_recertify'));
+    }
+    echo html_writer::div($OUTPUT->tabtree($tabs, $tab), 'local-recertify-tabs');
 }
-echo $OUTPUT->render_from_template('local_recertify/status', [
-    'rows' => $rows,
-    'hasrows' => (bool) $rows,
-    'summary' => get_string('summary', 'local_recertify', (object) ($counts + ['period' => $cfg->perioddays])),
-    'nextweek' => get_string($cfg->enabled ? 'nextweek' : 'nextweekoff', 'local_recertify', $nextweek),
-]);
-if ($form) {
+if ($tab === 'settings') {
+    echo html_writer::start_div('local-recertify-settings');
     $form->display();
+    echo html_writer::end_div();
+} else {
+    echo $OUTPUT->render_from_template('local_recertify/status', $page->export_for_template($OUTPUT));
 }
 echo $OUTPUT->footer();

@@ -1,0 +1,69 @@
+.local-recertify-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: .75rem;
+    margin-bottom: 1.25rem;
+}
+
+.local-recertify-tile {
+    display: block;
+    padding: .875rem 1rem;
+    border: 1px solid #dee2e6;
+    border-left-width: 4px;
+    border-radius: .5rem;
+    background: #fff;
+    color: #1d2125;
+    text-decoration: none;
+}
+
+.local-recertify-tile:hover,
+.local-recertify-tile:focus {
+    background: #f5f7fa;
+    color: #1d2125;
+    text-decoration: none;
+}
+
+.local-recertify-tile.active {
+    box-shadow: 0 0 0 2px var(--bs-primary, var(--primary, #0f6cbf));
+}
+
+.local-recertify-tile.tone-success {
+    border-left-color: #357a32;
+}
+
+.local-recertify-tile.tone-warning {
+    border-left-color: #f0ad4e;
+}
+
+.local-recertify-tile.tone-danger {
+    border-left-color: #ca3120;
+}
+
+.local-recertify-tile.tone-secondary {
+    border-left-color: #8f959e;
+}
+
+.local-recertify-count {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.local-recertify-label {
+    color: #4a5056;
+    font-size: .875rem;
+}
+
+.local-recertify .table.local-recertify-status td {
+    vertical-align: middle;
+}
+
+.local-recertify-status .badge {
+    font-size: .8125rem;
+    padding: .35em .65em;
+}
+
+.local-recertify-settings {
+    max-width: 40rem;
+}

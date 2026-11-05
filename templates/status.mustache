@@ -17,40 +17,77 @@
 {{!
     @template local_recertify/status
 
-    Recertification status of each learner in a course.
+    Recertification status of each learner in a course, most urgent first.
 
     Example context (json):
     {
-        "summary": "12 valid, 3 expiring, 1 expired, 4 not completed. Certifications last 365 days.",
-        "nextweek": "2 learners will be reset in the next 7 days.",
+        "enabled": true,
+        "periodtext": "Certifications last 365 days. Reminders go out 30 and 7 days before.",
+        "tiles": [{"key": "valid", "label": "Valid", "count": 12, "tone": "success", "url": "#", "active": false},
+                  {"key": "expiring", "label": "Expiring soon", "count": 3, "tone": "warning", "url": "#", "active": false}],
+        "nextweek": "One learner will be reset in the next 7 days.",
+        "hasdue": true,
+        "filtered": false,
+        "allurl": "#",
         "hasrows": true,
-        "rows": [{"name": "Omar Haddad", "state": "expiring", "statekey": "expiring", "completed": "3 December 2025",
-                  "expires": "3 December 2026", "past": 1}]
+        "rows": [{"name": "Omar Haddad", "picture": "", "statekey": "expiring", "state": "Expiring soon",
+                  "badge": "badge bg-warning text-dark", "completed": "3 December 2025", "expires": "3 December 2026",
+                  "expiresin": "In 28 days", "past": 1}]
     }
 }}
-<p data-region="summary">{{summary}}</p>
-<p class="text-muted" data-region="nextweek">{{nextweek}}</p>
-{{#hasrows}}
-<table class="table table-striped generaltable local-recertify-status">
-    <thead>
-        <tr>
-            <th scope="col">{{#str}}learner, local_recertify{{/str}}</th>
-            <th scope="col">{{#str}}status, local_recertify{{/str}}</th>
-            <th scope="col">{{#str}}completed, local_recertify{{/str}}</th>
-            <th scope="col">{{#str}}expires, local_recertify{{/str}}</th>
-            <th scope="col">{{#str}}past, local_recertify{{/str}}</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#rows}}
-        <tr data-state="{{statekey}}">
-            <td>{{name}}</td>
-            <td>{{state}}</td>
-            <td>{{completed}}</td>
-            <td>{{expires}}</td>
-            <td>{{past}}</td>
-        </tr>
-        {{/rows}}
-    </tbody>
-</table>
-{{/hasrows}}
+<div class="local-recertify">
+    {{^enabled}}
+    <div class="alert alert-info" role="status">
+        <strong>{{#str}}notenabled, local_recertify{{/str}}</strong>
+        <div>{{nextweek}}</div>
+    </div>
+    {{/enabled}}
+    {{#hasdue}}
+    <div class="alert alert-warning d-flex align-items-center" role="status">{{#pix}} i/warning, core {{/pix}}<span>{{nextweek}}</span></div>
+    {{/hasdue}}
+
+    <p class="text-muted" data-region="period">{{periodtext}}{{#enabled}}{{^hasdue}} {{nextweek}}{{/hasdue}}{{/enabled}}</p>
+
+    <ul class="local-recertify-tiles list-unstyled" aria-label="{{#str}}filterby, local_recertify{{/str}}">
+        {{#tiles}}
+        <li>
+            <a class="local-recertify-tile tone-{{tone}}{{#active}} active{{/active}}" href="{{url}}"{{#active}} aria-current="true"{{/active}}>
+                <span class="local-recertify-count">{{count}}</span>
+                <span class="local-recertify-label">{{label}}</span>
+            </a>
+        </li>
+        {{/tiles}}
+    </ul>
+    {{#filtered}}<p><a href="{{allurl}}">{{#str}}showall, local_recertify{{/str}}</a></p>{{/filtered}}
+
+    {{#hasrows}}
+    <div class="table-responsive">
+        <table class="table generaltable table-hover local-recertify-status mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">{{#str}}learner, local_recertify{{/str}}</th>
+                    <th scope="col">{{#str}}status, local_recertify{{/str}}</th>
+                    <th scope="col">{{#str}}completed, local_recertify{{/str}}</th>
+                    <th scope="col">{{#str}}expires, local_recertify{{/str}}</th>
+                    <th scope="col" class="text-end">{{#str}}past, local_recertify{{/str}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#rows}}
+                <tr data-state="{{statekey}}">
+                    <td><div class="d-flex align-items-center">{{{picture}}}<span class="ms-2">{{name}}</span></div></td>
+                    <td><span class="{{badge}}">{{state}}</span></td>
+                    <td>{{completed}}{{^completed}}<span class="text-muted">&ndash;</span>{{/completed}}</td>
+                    <td>
+                        {{#expires}}{{expires}}<div class="small text-muted">{{expiresin}}</div>{{/expires}}
+                        {{^expires}}<span class="text-muted">&ndash;</span>{{/expires}}
+                    </td>
+                    <td class="text-end">{{past}}</td>
+                </tr>
+                {{/rows}}
+            </tbody>
+        </table>
+    </div>
+    {{/hasrows}}
+    {{^hasrows}}<p class="text-muted border rounded text-center py-4">{{#str}}nolearners, local_recertify{{/str}}</p>{{/hasrows}}
+</div>

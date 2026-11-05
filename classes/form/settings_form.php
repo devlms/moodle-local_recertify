@@ -35,7 +35,6 @@ class settings_form extends \moodleform {
         $mform = $this->_form;
         $mform->addElement('hidden', 'courseid');
         $mform->setType('courseid', PARAM_INT);
-        $mform->addElement('header', 'settingshdr', get_string('settings', 'local_recertify'));
         $mform->addElement('advcheckbox', 'enabled', get_string('enabled', 'local_recertify'));
         $mform->addHelpButton('enabled', 'enabled', 'local_recertify');
         $mform->addElement('text', 'perioddays', get_string('perioddays', 'local_recertify'), ['size' => 6]);
