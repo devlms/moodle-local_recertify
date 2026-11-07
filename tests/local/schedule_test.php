@@ -18,6 +18,11 @@ namespace local_recertify\local;
 
 use local_recertify\task\process;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\local_recertify\local\settings::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(\local_recertify\local\schedule::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(\local_recertify\task\process::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(\local_recertify\local\notifier::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(\local_recertify\event\certification_expired::class)]
 /**
  * Tests for settings, the schedule and the daily task.
  *

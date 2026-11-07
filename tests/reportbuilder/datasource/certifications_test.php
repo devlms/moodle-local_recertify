@@ -18,6 +18,8 @@ namespace local_recertify\reportbuilder\datasource;
 
 use core_reportbuilder\tests\core_reportbuilder_testcase;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\local_recertify\reportbuilder\datasource\certifications::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(\local_recertify\reportbuilder\local\entities\certification::class)]
 /**
  * Tests for the certifications report source.
  *

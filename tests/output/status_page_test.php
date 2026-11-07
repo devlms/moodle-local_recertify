@@ -18,6 +18,7 @@ namespace local_recertify\output;
 
 use local_recertify\local\settings;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\local_recertify\output\status_page::class)]
 /**
  * Tests for the data behind the status page.
  *

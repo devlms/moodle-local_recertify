@@ -22,6 +22,7 @@ use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 use core_privacy\tests\provider_testcase;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\local_recertify\privacy\provider::class)]
 /**
  * Tests for the privacy provider.
  *

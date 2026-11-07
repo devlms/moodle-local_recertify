@@ -18,6 +18,7 @@ namespace local_recertify\local;
 
 use completion_info;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(\local_recertify\local\resetter::class)]
 /**
  * Tests for resetting one learner's progress in a course.
  *

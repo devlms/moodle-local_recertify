@@ -18,6 +18,8 @@ namespace local_recertify;
 
 use local_recertify\form\settings_form;
 
+#[\PHPUnit\Framework\Attributes\CoversFunction('local_recertify_extend_navigation_course')]
+#[\PHPUnit\Framework\Attributes\CoversClass(\local_recertify\form\settings_form::class)]
 /**
  * Tests for navigation and the settings form.
  *
