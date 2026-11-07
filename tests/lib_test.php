@@ -18,6 +18,12 @@ namespace local_recertify;
 
 use local_recertify\form\settings_form;
 
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+// Coverage resolves CoversFunction before any test runs, so the functions must be loaded here.
+require_once($CFG->dirroot . '/local/recertify/lib.php');
+
 #[\PHPUnit\Framework\Attributes\CoversFunction('local_recertify_extend_navigation_course')]
 #[\PHPUnit\Framework\Attributes\CoversClass(\local_recertify\form\settings_form::class)]
 /**
