@@ -41,3 +41,16 @@ function local_recertify_extend_navigation_course(navigation_node $navigation, s
         );
     }
 }
+
+/**
+ * Remove the settings, history and reminder records of a course that is being deleted. After deletion its
+ * context is gone, so the privacy API could no longer find them.
+ *
+ * @param stdClass $course
+ */
+function local_recertify_pre_course_delete($course) {
+    global $DB;
+    foreach (['local_recertify_course', 'local_recertify_history', 'local_recertify_notice'] as $table) {
+        $DB->delete_records($table, ['courseid' => $course->id]);
+    }
+}

@@ -60,9 +60,74 @@ final class resetter {
             throw new moodle_exception('error:notcompleted', 'local_recertify');
         }
         $modinfo = get_fast_modinfo($courseid);
-        [$archive, $finalgrade] = self::snapshot($courseid, $userid, $modinfo);
 
         $transaction = $DB->start_delegated_transaction();
+        try {
+            $historyid = self::reset_in_transaction($courseid, $userid, $timecompleted, $modinfo);
+            $transaction->allow_commit();
+        } catch (\Throwable $e) {
+            // Never leave a transaction open: later resets in the same cron run would be lost with it.
+            $transaction->rollback($e);
+        }
+
+        \cache::make('core', 'completion')->delete($userid . '_' . $courseid);
+        \cache::make('core', 'coursecompletion')->delete($userid . '_' . $courseid);
+        return $historyid;
+    }
+
+    /**
+     * Why completion would come straight back after a reset, as a string key, or null when a reset holds.
+     *
+     * Moodle's completion cron re-marks date, enrolment duration and "another course" criteria by itself.
+     * When those alone can complete the course (any criteria is enough, or they are the only criteria),
+     * a reset learner is complete again within a day without retaking anything.
+     *
+     * @param int $courseid
+     * @return string|null
+     */
+    public static function blocking_criteria(int $courseid): ?string {
+        global $CFG, $DB;
+        require_once($CFG->libdir . '/completionlib.php');
+        $types = array_map('intval', $DB->get_fieldset_select(
+            'course_completion_criteria',
+            'criteriatype',
+            'course = ?',
+            [$courseid]
+        ));
+        if (!$types) {
+            return null;
+        }
+        $auto = [COMPLETION_CRITERIA_TYPE_DATE, COMPLETION_CRITERIA_TYPE_DURATION, COMPLETION_CRITERIA_TYPE_COURSE];
+        $autotypes = array_intersect($types, $auto);
+        if (!$autotypes) {
+            return null;
+        }
+        $method = (int) $DB->get_field_select(
+            'course_completion_aggr_methd',
+            'method',
+            'course = ? AND criteriatype IS NULL',
+            [$courseid]
+        );
+        $any = $method === COMPLETION_AGGREGATION_ANY;
+        if ($any || count($autotypes) === count($types)) {
+            return 'error:autocriteria';
+        }
+        return null;
+    }
+
+    /**
+     * Archive and reset inside the caller's transaction.
+     *
+     * @param int $courseid
+     * @param int $userid
+     * @param int $timecompleted
+     * @param \course_modinfo $modinfo
+     * @return int The history row id.
+     */
+    private static function reset_in_transaction(int $courseid, int $userid, int $timecompleted, \course_modinfo $modinfo): int {
+        global $DB;
+        // Inside the transaction, so an attempt submitted meanwhile is either archived or kept.
+        [$archive, $finalgrade] = self::snapshot($courseid, $userid, $modinfo);
         $historyid = (int) $DB->insert_record('local_recertify_history', (object) [
             'courseid' => $courseid,
             'userid' => $userid,
@@ -102,10 +167,6 @@ final class resetter {
         $DB->delete_records_select('course_modules_viewed', $cmsql, $params);
         $DB->delete_records('course_completion_crit_compl', ['course' => $courseid, 'userid' => $userid]);
         $DB->delete_records('course_completions', ['course' => $courseid, 'userid' => $userid]);
-        $transaction->allow_commit();
-
-        \cache::make('core', 'completion')->delete($userid . '_' . $courseid);
-        \cache::make('core', 'coursecompletion')->delete($userid . '_' . $courseid);
         return $historyid;
     }
 

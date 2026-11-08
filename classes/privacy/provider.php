@@ -57,6 +57,7 @@ final class provider implements
         $collection->add_database_table('local_recertify_notice', [
             'userid' => 'privacy:metadata:notice:userid',
             'daysbefore' => 'privacy:metadata:notice:daysbefore',
+            'timecompleted' => 'privacy:metadata:notice:timecompleted',
             'timesent' => 'privacy:metadata:notice:timesent',
         ], 'privacy:metadata:notice');
         $collection->add_subsystem_link('core_message', [], 'privacy:metadata:core_message');

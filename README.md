@@ -6,7 +6,7 @@
 [![Moodle](https://img.shields.io/badge/Moodle-4.5%20to%205.3-f98012)](https://moodledev.io/general/releases)
 [![PHP](https://img.shields.io/badge/PHP-8.1%20to%208.4-777bb4)](https://www.php.net/supported-versions.php)
 [![License: GPL v3](https://img.shields.io/badge/license-GPL%20v3-blue)](LICENSE)
-[![Maturity](https://img.shields.io/badge/maturity-alpha-orange)](version.php)
+[![Maturity](https://img.shields.io/badge/maturity-stable-green)](version.php)
 
 Make course completions expire. A year after a learner completes a mandatory course (fire safety, safeguarding, data protection, any annual refresher), their certification expires: Moodle archives what they did, resets their progress in that course, and asks them to complete it again. Reminders go out before it expires.
 
@@ -28,7 +28,10 @@ Clearing a learner's completion is not enough. Moodle recalculates activity comp
 | Learners notified when a certification expires; a log event for each expiry | Done |
 | Report builder source "Past certifications" for compliance reports across the site | Done |
 | Privacy API for the history and reminders | Done |
-| Assignment submissions | Planned. A course that needs a new assignment submission will show the old one until reopened. |
+| Safe resets: each reset is one transaction, and a failure rolls back without touching the next learner | Done |
+| Courses that a date, an enrolment duration or another course can complete on their own are refused, because Moodle would mark them complete again by itself | Done |
+| At most 200 resets per run, so turning it on for an old course spreads the work over several days | Done |
+| Assignment, lesson, H5P, workshop and LTI data | Not reset. Their grades are cleared from the gradebook, but submissions stay, so completion based on them can come back when the activity is graded or re-checked. Use quizzes, SCORM, or manual and view completion for recertification courses. |
 
 ## Install
 

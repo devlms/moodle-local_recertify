@@ -27,6 +27,9 @@ use local_recertify\local\{notifier, resetter, schedule, settings};
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class process extends \core\task\scheduled_task {
+    /** @var int Most resets in one run, across all courses. */
+    public const MAXRESETS = 200;
+
     /**
      * Task name.
      *
@@ -50,9 +53,14 @@ class process extends \core\task\scheduled_task {
      */
     public function run(int $now): void {
         global $DB;
+        $total = 0;
         foreach (settings::enabled_courses() as $courseid) {
             $course = $DB->get_record('course', ['id' => $courseid]);
             if (!$course) {
+                continue;
+            }
+            if ($why = resetter::blocking_criteria($courseid)) {
+                mtrace("Recertification: course $courseid skipped: " . get_string($why, 'local_recertify'));
                 continue;
             }
             $cfg = settings::get($courseid);
@@ -62,6 +70,11 @@ class process extends \core\task\scheduled_task {
             }
             $resets = 0;
             foreach (schedule::due_resets($cfg, $now) as $userid) {
+                // A cap per run, so turning the plugin on for an old course does not reset thousands at once.
+                if ($total >= self::MAXRESETS) {
+                    mtrace('Recertification: ' . self::MAXRESETS . ' resets this run, the rest wait for the next run.');
+                    return;
+                }
                 try {
                     $historyid = resetter::reset($courseid, $userid);
                 } catch (\Throwable $e) {
@@ -75,6 +88,7 @@ class process extends \core\task\scheduled_task {
                 ])->trigger();
                 notifier::expired($course, $userid);
                 $resets++;
+                $total++;
             }
             mtrace("Recertification: course $courseid, $resets reset.");
         }

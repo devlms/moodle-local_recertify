@@ -190,4 +190,48 @@ final class resetter_test extends \advanced_testcase {
         $this->expectException(\moodle_exception::class);
         resetter::reset((int) $this->course->id, (int) $user->id);
     }
+
+    public function test_a_failed_reset_rolls_back_and_leaves_no_open_transaction(): void {
+        global $DB;
+        $user = $this->certified_learner();
+        // A broken module record makes the reset fail halfway.
+        $DB->delete_records('quiz', ['id' => $this->quiz->id]);
+        // The test framework holds a transaction of its own, so count them: the reset must add none.
+        $depth = fn() => count((new \ReflectionProperty(\moodle_database::class, 'transactions'))->getValue($DB));
+        $before = $depth();
+        try {
+            resetter::reset((int) $this->course->id, (int) $user->id);
+            $this->fail('Reset did not fail');
+        } catch (\dml_missing_record_exception $e) {
+            $this->assertSame($before, $depth());
+        }
+    }
+
+    public function test_criteria_that_complete_by_themselves_block_resets(): void {
+        global $DB;
+        // The setup course needs the quiz: a reset holds.
+        $this->assertNull(resetter::blocking_criteria((int) $this->course->id));
+        // Add a date criterion with "any" aggregation: the date alone completes the course again.
+        $DB->insert_record('course_completion_criteria', ['course' => $this->course->id,
+            'criteriatype' => COMPLETION_CRITERIA_TYPE_DATE, 'timeend' => time() - DAYSECS]);
+        $DB->insert_record('course_completion_aggr_methd', ['course' => $this->course->id, 'criteriatype' => null,
+            'method' => COMPLETION_AGGREGATION_ANY]);
+        $this->assertSame('error:autocriteria', resetter::blocking_criteria((int) $this->course->id));
+        // With "all", the quiz is still needed.
+        $DB->set_field('course_completion_aggr_methd', 'method', COMPLETION_AGGREGATION_ALL, ['course' => $this->course->id]);
+        $this->assertNull(resetter::blocking_criteria((int) $this->course->id));
+        // A course whose only criterion is a date is blocked even with "all".
+        $other = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $DB->insert_record('course_completion_criteria', ['course' => $other->id,
+            'criteriatype' => COMPLETION_CRITERIA_TYPE_DURATION, 'enrolperiod' => DAYSECS]);
+        $this->assertSame('error:autocriteria', resetter::blocking_criteria((int) $other->id));
+    }
+
+    public function test_deleting_the_course_removes_history(): void {
+        global $DB;
+        $user = $this->certified_learner();
+        resetter::reset((int) $this->course->id, (int) $user->id);
+        delete_course($this->course->id, false);
+        $this->assertFalse($DB->record_exists('local_recertify_history', ['courseid' => $this->course->id]));
+    }
 }

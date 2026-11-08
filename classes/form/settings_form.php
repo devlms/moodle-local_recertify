@@ -59,6 +59,9 @@ class settings_form extends \moodleform {
         if ((int) $data['perioddays'] < 1) {
             $errors['perioddays'] = get_string('error:period', 'local_recertify');
         }
+        if (!empty($data['enabled']) && ($why = \local_recertify\local\resetter::blocking_criteria((int) $data['courseid']))) {
+            $errors['enabled'] = get_string($why, 'local_recertify');
+        }
         return $errors;
     }
 }

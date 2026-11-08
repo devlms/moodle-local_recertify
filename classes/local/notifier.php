@@ -75,7 +75,8 @@ final class notifier {
      * @return string
      */
     private static function course_name(\stdClass $course): string {
-        return format_string($course->fullname, true, ['context' => context_course::instance($course->id)]);
+        // Unescaped: messages are plain text, and the HTML version escapes it once.
+        return format_string($course->fullname, true, ['context' => context_course::instance($course->id), 'escape' => false]);
     }
 
     /**
