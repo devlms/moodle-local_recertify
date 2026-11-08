@@ -1,5 +1,12 @@
 # Changes
 
+## 1.1.0 (2026-11-08)
+
+Redesigned pages, same features.
+
+- The status page has an expiry timeline: expired learners on the left, then today to a full period ahead, with the reminder window shaded.
+- The counts are one sentence of filter links, and the due warning is a quiet line.
+
 ## 1.0.0 (2026-11-08)
 
 First stable release.
