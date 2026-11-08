@@ -98,6 +98,27 @@ final class status_page_test extends \advanced_testcase {
         $this->assertSame('30 and 7', $data['reminders']);
     }
 
+    public function test_timeline_places_each_learner_by_days_left(): void {
+        $this->learner('Valid', 100);
+        $this->learner('Soon', 360);
+        $this->learner('Never', null);
+        $data = $this->export();
+        // Two learners with a completion are placed; the one who never completed is not.
+        $this->assertCount(2, $data['points']);
+        $this->assertTrue($data['haspoints']);
+        $tones = array_count_values(array_column($data['points'], 'tone'));
+        // Expired learners sit in the expired zone on the left; everyone else after today.
+        foreach ($data['points'] as $point) {
+            if ($point['tone'] === 'danger') {
+                $this->assertLessThan($data['expiredzone'], $point['pos']);
+            } else {
+                $this->assertGreaterThanOrEqual($data['expiredzone'], $point['pos']);
+                $this->assertLessThanOrEqual(100, $point['pos']);
+            }
+        }
+        $this->assertNotEmpty($tones);
+    }
+
     public function test_filter_by_state(): void {
         $this->learner('Valid', 100);
         $this->learner('Soon', 360);

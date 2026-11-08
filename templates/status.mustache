@@ -17,7 +17,8 @@
 {{!
     @template local_recertify/status
 
-    Recertification status of each learner in a course, most urgent first.
+    Recertification status of each learner in a course: an expiry timeline (decorative; the table and the filter
+    sentence carry the same facts in text), then every learner, most urgent first.
 
     Example context (json):
     {
@@ -26,6 +27,9 @@
         "tiles": [{"key": "valid", "label": "Valid", "count": 12, "tone": "success", "url": "#", "active": false},
                   {"key": "expiring", "label": "Expiring soon", "count": 3, "tone": "warning", "url": "#", "active": false}],
         "nextweek": "One learner will be reset in the next 7 days.",
+        "haspoints": true, "expiredzone": 12, "windowwidth": 7.2, "windowdays": 30, "periodend": "In 365 days",
+        "points": [{"pos": 6, "tone": "danger", "label": "Eli Novak", "lane": 0},
+                   {"pos": 13, "tone": "warning", "label": "Dana Ruiz, 8 November 2026", "lane": 0}],
         "hasdue": true,
         "filtered": false,
         "allurl": "#",
@@ -42,22 +46,31 @@
         <div>{{nextweek}}</div>
     </div>
     {{/enabled}}
-    {{#hasdue}}
-    <div class="alert alert-warning d-flex align-items-center" role="status">{{#pix}} i/warning, core {{/pix}}<span>{{nextweek}}</span></div>
-    {{/hasdue}}
+    <p class="local-recertify-period" data-region="period">{{periodtext}}{{#enabled}}{{^hasdue}} {{nextweek}}{{/hasdue}}{{/enabled}}</p>
+    {{#hasdue}}<p class="local-recertify-due" role="status">{{#pix}}i/warning, core{{/pix}}{{nextweek}}</p>{{/hasdue}}
 
-    <p class="text-muted" data-region="period">{{periodtext}}{{#enabled}}{{^hasdue}} {{nextweek}}{{/hasdue}}{{/enabled}}</p>
+    {{#haspoints}}
+    <figure class="local-recertify-timeline" aria-hidden="true">
+        <div class="local-recertify-track" style="--expired: {{expiredzone}}%; --window: {{windowwidth}}%">
+            <span class="local-recertify-zone-expired"></span>
+            <span class="local-recertify-zone-window"></span>
+            <span class="local-recertify-today"><span>{{#str}}rel:today, local_recertify{{/str}}{{#windowdays}} · {{#str}}reminderwindow, local_recertify, {{windowdays}}{{/str}}{{/windowdays}}</span></span>
+            {{#points}}
+            <span class="local-recertify-dot tone-{{tone}}" style="left: {{pos}}%; --lane: {{lane}}" title="{{label}}"></span>
+            {{/points}}
+        </div>
+        <div class="local-recertify-axis" style="--expired: {{expiredzone}}%; --window: {{windowwidth}}%">
+            <span class="is-expired">{{#str}}tile:expired, local_recertify{{/str}}</span>
+            <span class="is-end">{{periodend}}</span>
+        </div>
+    </figure>
+    {{/haspoints}}
 
-    <ul class="local-recertify-tiles list-unstyled" aria-label="{{#str}}filterby, local_recertify{{/str}}">
+    <p class="local-recertify-filters">
         {{#tiles}}
-        <li>
-            <a class="local-recertify-tile tone-{{tone}}{{#active}} active{{/active}}" href="{{url}}"{{#active}} aria-current="true"{{/active}}>
-                <span class="local-recertify-count">{{count}}</span>
-                <span class="local-recertify-label">{{label}}</span>
-            </a>
-        </li>
+        <a class="local-recertify-filter tone-{{tone}}{{#active}} active{{/active}}" href="{{url}}"{{#active}} aria-current="true"{{/active}}><strong>{{count}}</strong> {{label}}</a>
         {{/tiles}}
-    </ul>
+    </p>
     {{#filtered}}<p><a href="{{allurl}}">{{#str}}showall, local_recertify{{/str}}</a></p>{{/filtered}}
 
     {{#hasrows}}

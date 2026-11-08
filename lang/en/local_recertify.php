@@ -81,6 +81,7 @@ $string['rel:tomorrow'] = 'Tomorrow';
 $string['rel:yesterday'] = 'Yesterday';
 $string['reminderdays'] = 'Reminders (days before)';
 $string['reminderdays_help'] = 'Comma separated, for example 30,7. Each learner gets the nearest reminder that applies, once.';
+$string['reminderwindow'] = 'Reminders from {$a} days before';
 $string['settings'] = 'Settings';
 $string['showall'] = 'Show everyone';
 $string['state:expired'] = 'Expired, waiting for a retake';

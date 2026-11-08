@@ -1,58 +1,130 @@
-.local-recertify-tiles {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-    gap: .75rem;
-    margin-bottom: 1.25rem;
+.local-recertify-period {
+    max-width: 48rem;
+    color: #495057;
 }
 
-.local-recertify-tile {
-    display: block;
-    padding: .875rem 1rem;
-    border: 1px solid #dee2e6;
-    border-left-width: 4px;
-    border-radius: .5rem;
-    background: #fff;
+.local-recertify-due {
+    display: flex;
+    gap: .35rem;
+    align-items: center;
+    color: #7a4b00;
+    font-weight: 600;
+}
+
+/* Expiry timeline: expired on the left, then today to a full period ahead; the reminder window is shaded. */
+.local-recertify-timeline {
+    margin: 2.5rem 0 .5rem;
+}
+
+.local-recertify-track {
+    position: relative;
+    height: 4.25rem;
+    border-bottom: 2px solid #343a40;
+}
+
+.local-recertify-zone-expired,
+.local-recertify-zone-window {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+
+.local-recertify-zone-expired {
+    left: 0;
+    width: var(--expired);
+    background: repeating-linear-gradient(135deg, #fbe9e7 0 6px, #fff 6px 12px);
+}
+
+.local-recertify-zone-window {
+    left: var(--expired);
+    width: var(--window);
+    background: #fdf3e1;
+}
+
+.local-recertify-today {
+    position: absolute;
+    top: -1.6rem;
+    bottom: -.4rem;
+    left: var(--expired);
+    border-left: 2px solid #1d2125;
+}
+
+.local-recertify-today > span {
+    position: absolute;
+    top: 0;
+    left: .4rem;
     color: #1d2125;
-    text-decoration: none;
+    font-size: .8125rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
 }
 
-.local-recertify-tile:hover,
-.local-recertify-tile:focus {
-    background: #f5f7fa;
+.local-recertify-dot {
+    position: absolute;
+    bottom: calc(.35rem + var(--lane) * .95rem);
+    width: .8rem;
+    height: .8rem;
+    margin-left: -.4rem;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px rgba(29, 33, 37, .25);
+}
+
+.local-recertify-dot.tone-success {
+    background: #357a32;
+}
+
+.local-recertify-dot.tone-warning {
+    background: #d48a1b;
+}
+
+.local-recertify-dot.tone-danger {
+    background: #ca3120;
+}
+
+.local-recertify-axis {
+    position: relative;
+    height: 1.5rem;
+    margin-top: .35rem;
+    color: #5b6269;
+    font-size: .8125rem;
+}
+
+.local-recertify-axis span {
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+}
+
+.local-recertify-axis .is-expired {
+    left: 0;
+}
+
+
+.local-recertify-axis .is-end {
+    right: 0;
+}
+
+/* The counts, as one sentence of filter links. */
+.local-recertify-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem 1.25rem;
+    margin: .75rem 0 1.25rem;
+}
+
+.local-recertify-filter {
     color: #1d2125;
-    text-decoration: none;
 }
 
-.local-recertify-tile.active {
-    box-shadow: 0 0 0 2px var(--bs-primary, var(--primary, #0f6cbf));
+.local-recertify-filter strong {
+    font-variant-numeric: tabular-nums;
 }
 
-.local-recertify-tile.tone-success {
-    border-left-color: #357a32;
-}
-
-.local-recertify-tile.tone-warning {
-    border-left-color: #f0ad4e;
-}
-
-.local-recertify-tile.tone-danger {
-    border-left-color: #ca3120;
-}
-
-.local-recertify-tile.tone-secondary {
-    border-left-color: #8f959e;
-}
-
-.local-recertify-count {
-    display: block;
-    font-size: 1.75rem;
-    font-weight: 700;
-    line-height: 1.1;
-}
-
-.local-recertify-label {
-    color: #4a5056;
-    font-size: .875rem;
+.local-recertify-filter.active {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
 }
 
 .local-recertify .table.local-recertify-status td {
