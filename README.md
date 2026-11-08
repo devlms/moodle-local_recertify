@@ -7,6 +7,7 @@
 [![PHP](https://img.shields.io/badge/PHP-8.1%20to%208.4-777bb4)](https://www.php.net/supported-versions.php)
 [![License: GPL v3](https://img.shields.io/badge/license-GPL%20v3-blue)](LICENSE)
 [![Maturity](https://img.shields.io/badge/maturity-stable-green)](version.php)
+[![Sponsor](https://img.shields.io/badge/sponsor-this%20plugin-2438ff)](https://devlms.com/sponsors/?plugin=local_recertify)
 
 Make course completions expire. A year after a learner completes a mandatory course (fire safety, safeguarding, data protection, any annual refresher), their certification expires: Moodle archives what they did, resets their progress in that course, and asks them to complete it again. Reminders go out before it expires.
 
@@ -64,6 +65,12 @@ PHPUnit covers the reset (including the spring-back case: a reset that holds aft
 ## Who made it
 
 [DevLMS](https://devlms.com) builds custom Moodle plugins. Need recertification wired to your HR system, per-role periods, or assignment resets? [Get a quote](https://devlms.com/#quote).
+
+## Sponsors
+
+<!-- sponsors:start -->
+No sponsors yet. [Sponsor this plugin](https://devlms.com/sponsors/?plugin=local_recertify): your name or logo, with a link to your site, goes here and on [devlms.com/sponsors](https://devlms.com/sponsors/).
+<!-- sponsors:end -->
 
 ## License
 
